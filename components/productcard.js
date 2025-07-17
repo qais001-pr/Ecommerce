@@ -1,5 +1,5 @@
 /* eslint-disable curly */
-/* eslint-disable no-unused-vars */
+
 
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable semi */
@@ -17,7 +17,6 @@ import Loader from './loader'
 import Error from './error'
 
 export default function ProductCard({ item }) {
-    // console.log(item.id)
     const navigation = useNavigation();
     const [isFavorite, setIsFavorite] = useState(false)
     const [isLoading, setisLoading] = useState(false)
@@ -49,11 +48,10 @@ export default function ProductCard({ item }) {
             setisLoading(true)
 
             const response = await axios.get(`${ip}/api/Product/getproductDetails/${productid}`)
-            // console.log(response.data)
             if (response.status === 200)
                 navigation.navigate('productDetails', { product: response.data })
         } catch {
-            <Error message={'Hello'} />
+
             setisLoading(false)
         }
         finally {

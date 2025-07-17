@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable quotes */
 import React, { useEffect, useState, createContext, useContext } from "react";
 import axios from "axios";
@@ -8,47 +9,46 @@ export const CategoriesContext = createContext();
 export const CategoriesProvider = ({ children }) => {
     const [categories, setCategories] = useState([]);
     const [loadingCategories, setLoadingCategories] = useState(true);
+    console.log(categories);
+    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-    useEffect(() => {
-        // Helper to wait for ms milliseconds
-        const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-        // Fetch with retry logic
-        const fetchWithRetry = async (url, retries = 3, delayMs = 1500) => {
-            for (let attempt = 1; attempt <= retries; attempt++) {
-                try {
-                    const response = await axios.get(url);
-                    const data = response.data.data ?? response.data;
-                    if (data && data.length > 0) {
-                        return data; // Success
-                    } else {
-                        throw new Error("Empty data received");
-                    }
-                } catch (error) {
-                    if (attempt < retries) {
-                        await delay(delayMs); // Wait before retrying
-                    } else {
-                        throw error; // Rethrow after last attempt
-                    }
+    // Fetch with retry logic
+    const fetchWithRetry = async (url, retries = 3, delayMs = 1500) => {
+        for (let attempt = 1; attempt <= retries; attempt++) {
+            try {
+                const response = await axios.get(url);
+                const data = response.data.data ?? response.data;
+                if (data && data.length > 0) {
+                    return data; // Success
+                } else {
+                    throw new Error("Empty data received");
+                }
+            } catch (error) {
+                if (attempt < retries) {
+                    await delay(delayMs); // Wait before retrying
+                } else {
+                    throw error; // Rethrow after last attempt
                 }
             }
-        };
+        }
+    };
 
-        const fetchCategories = async () => {
-            try {
-                const data = await fetchWithRetry(`${ip}/api/Category/getAllCategories`, 3, 1500);
-                setCategories(data);
-            } catch (error) {
-            } finally {
-                setLoadingCategories(false);
-            }
-        };
+    const fetchCategories = async () => {
+        try {
+            const data = await fetchWithRetry(`${ip}/api/Category/getAllCategories`, 3, 1500);
+            setCategories(data);
+        } catch (error) {
+        } finally {
+            setLoadingCategories(false);
+        }
+    };
 
+    useEffect(() => {
         fetchCategories();
-    }, []); // Empty dependency array to run once on mount
+    }, []);
 
     return (
-        <CategoriesContext.Provider value={{ categories, loadingCategories }}>
+        <CategoriesContext.Provider value={{ categories, loadingCategories, fetchCategories }}>
             {children}
         </CategoriesContext.Provider>
     );

@@ -3,7 +3,7 @@
 import { StyleSheet } from 'react-native'
 import { Dimensions } from 'react-native';
 const { width } = Dimensions.get('window');
-export const styles = StyleSheet.create( {
+export const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#ffffff',
@@ -53,6 +53,6 @@ export const styles = StyleSheet.create( {
         color: '#555',
     },
     activeCategory: {
-        backgroundColor: '#f0f0f0',
+        backgroundColor: '#ac8d39ff',
     },
 });

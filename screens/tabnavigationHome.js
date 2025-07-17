@@ -1,92 +1,149 @@
+/* eslint-disable react/no-unstable-nested-components */
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faHouse, faHeart, faShoppingCart, faUser, faBox } from '@fortawesome/free-solid-svg-icons';
-// Import screen components
+import {
+    faHouse,
+    faHeart,
+    faShoppingCart,
+    faUser,
+    faBox,
+} from '@fortawesome/free-solid-svg-icons';
+import { StyleSheet, View } from 'react-native';
 import Home from './home';
-// Import Order Screen
 import OrdersScreen from './order';
-// Import Wishlist Screen
-// import WishlistScreen from './wishlist';
-// Import Cart Screen
 import CartScreen from './card';
-// Import Profile Screen
 import ProfileScreen from './profile';
-// Import Wishlist Screen
 import WishlistScreen from './whishlists';
-import Whishlist from './whishlists';
+
 const Tab = createBottomTabNavigator();
+
 export default function BottomTabs() {
     return (
         <Tab.Navigator
+            initialRouteName="Home"
             screenOptions={({ route }) => ({
                 headerShown: false,
-                tabBarActiveTintColor: '#17301C',
-                tabBarLabel: route.name === 'homeScreen' ? 'Home' :
-                    route.name === 'whishlist' ? 'Wishlist' :
-                        route.name === 'Cart' ? 'Cart' :
-                            route.name === 'Orders' ? 'Orders' :
-                                route.name === 'Profile' ? 'Profile' : '',
-                tabBarIconStyle: {
-                    color: '#000',
-                    fontSize: 20,
-                },
-                tabBarActiveBackgroundColor: '#f8e8c3',
-                tabBarInactiveBackgroundColor: '#c8d8b3',
-                tabBarActiveTintColor: '#17301C',
-                tabBarInactiveTintColor: 'white',
-                tabBarStyle: {
-                    opacity: 0.9,
-                    position: 'absolute',
-                    shadowOpacity: 0.25,
-                    shadowRadius: 3.5,
-                    elevation: 10,
-                    shadowColor: '#000',
-                    shadowOffset: {
-                        width: 0,
-                        height: -3,
-                    },
-                    borderTopLeftRadius: 20,
-                    borderTopRightRadius: 20,
-                    backgroundColor: '#f8f8f8',
-                    borderTopWidth: 0,
-                    elevation: 5,
-                },
-                tabBarIcon: ({ color, size }) => {
-                    let icon;
+                tabBarHideOnKeyboard: true,
+                tabBarShowLabel: true,
+                tabBarActiveTintColor: '#2C344A',
+                tabBarInactiveTintColor: '#A79953',
+                tabBarLabelStyle: styles.labelStyle,
+                tabBarStyle: styles.tabBar,
+                tabBarItemStyle: styles.tabItem,
+                tabBarIcon: ({ focused, color, size }) => {
+                    let iconName;
+                    let iconSize = focused ? 30 : 22;
 
                     switch (route.name) {
-                        case 'homeScreen':
-                            icon = faHouse;
+                        case 'Home':
+                            iconName = faHouse;
                             break;
-                        case 'whishlist':
-                            icon = faHeart;
+                        case 'Wishlist':
+                            iconName = faHeart;
                             break;
                         case 'Cart':
-                            icon = faShoppingCart;
+                            iconName = faShoppingCart;
                             break;
                         case 'Orders':
-                            icon = faBox;
+                            iconName = faBox;
                             break;
                         case 'Profile':
-                            icon = faUser;
+                            iconName = faUser;
                             break;
                         default:
-                            icon = faHouse;
-                            break;
+                            iconName = faHouse;
                     }
 
                     return (
-                        <FontAwesomeIcon icon={icon} size={size} color={color} />
+                        <View style={focused ? styles.activeIconContainer : styles.iconContainer}>
+                            <FontAwesomeIcon
+                                icon={iconName}
+                                size={iconSize}
+                                color={color}
+                                style={focused ? styles.activeIcon : styles.icon}
+                            />
+                        </View>
                     );
                 },
             })}
         >
-            <Tab.Screen name="homeScreen" component={Home} />
-            <Tab.Screen name="Orders" component={OrdersScreen} />
-            <Tab.Screen name="Cart" component={CartScreen} />
-            <Tab.Screen name="whishlist" component={Whishlist} />
-            <Tab.Screen name="Profile" component={ProfileScreen} />
+            <Tab.Screen
+                name="Home"
+                component={Home}
+                options={{ tabBarLabel: 'Home' }}
+            />
+            <Tab.Screen
+                name="Wishlist"
+                component={WishlistScreen}
+                options={{ tabBarLabel: 'Wishlist' }}
+            />
+            <Tab.Screen
+                name="Cart"
+                component={CartScreen}
+                options={{
+                    tabBarLabel: 'Cart',
+                    tabBarBadgeStyle: styles.badge,
+                }}
+            />
+            <Tab.Screen
+                name="Orders"
+                component={OrdersScreen}
+                options={{ tabBarLabel: 'Orders' }}
+            />
+            <Tab.Screen
+                name="Profile"
+                component={ProfileScreen}
+                options={{ tabBarLabel: 'Profile' }}
+            />
         </Tab.Navigator>
     );
 }
+
+const styles = StyleSheet.create({
+    tabBar: {
+        position: 'absolute',
+        height: 70,
+        borderTopWidth: 0,
+        backgroundColor: '#F7F7EE',
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        shadowColor: '#2C344A',
+        shadowOffset: { width: 0, height: -5 },
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+        elevation: 10,
+        paddingBottom: 5,
+    },
+    tabItem: {
+        paddingVertical: 8,
+    },
+    labelStyle: {
+        fontSize: 12,
+        fontWeight: '600',
+        paddingBottom: 4,
+    },
+    iconContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 4,
+    },
+    activeIconContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 4,
+    },
+    activeIcon: {
+        marginBottom: 4,
+    },
+    icon: {
+        opacity: 0.9,
+    },
+    badge: {
+        backgroundColor: '#A79953',
+        color: 'white',
+        fontSize: 10,
+        fontWeight: 'bold',
+        marginLeft: 8,
+    },
+});

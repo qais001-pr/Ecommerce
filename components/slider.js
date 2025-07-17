@@ -7,22 +7,18 @@ import {
     FlatList,
     TouchableOpacity,
     Animated,
-    Easing
+    Easing,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faTimes, faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import { useCategories } from '../context/categoriescontext';
 import { styles } from '../styles/components/slider';
-
-
-
-export default function Slider({ setslidermodal }) {
+export default function Slider({ setslidermodal, fetchProducts }) {
     const { categories } = useCategories();
     const [isCategoriesExpanded, setIsCategoriesExpanded] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [animation] = useState(new Animated.Value(0));
-
     const toggleCategories = () => {
         Animated.timing(animation, {
             toValue: isCategoriesExpanded ? 0 : 1,
@@ -37,10 +33,11 @@ export default function Slider({ setslidermodal }) {
         inputRange: [0, 1],
         outputRange: [0, Math.min(categories.length * 50, 300)],
     });
-
-    const handleCategorySelect = (item) => {
+    const handleCategorySelect = async (item) => {
+        console.log(item.id);
         setSelectedCategory(item.id);
-        // You might want to add additional logic here for category selection
+        await fetchProducts(item.id);
+
     };
 
     const renderCategoryItem = ({ item }) => (

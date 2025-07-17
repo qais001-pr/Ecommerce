@@ -1,205 +1,302 @@
-/* eslint-disable react/self-closing-comp */
+/* eslint-disable semi */
+/* eslint-disable quotes */
+/* eslint-disable curly */
 /* eslint-disable comma-dangle */
 /* eslint-disable react-native/no-inline-styles */
-import { View, Text, SafeAreaView, ImageBackground, Pressable } from 'react-native';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  SafeAreaView,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Alert,
+} from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faBackward } from '@fortawesome/free-solid-svg-icons';
+import { faBackward, faQuoteLeft } from '@fortawesome/free-solid-svg-icons';
+import { faHeart as solidHeart } from '@fortawesome/free-solid-svg-icons';
+import { faHeart as regularHeart } from '@fortawesome/free-regular-svg-icons';
+
+function ProductHeader({ product, onBack }) {
+  return (
+    <View style={styles.headerContainer}>
+      <Pressable onPress={onBack} style={styles.backButton}>
+        <FontAwesomeIcon icon={faBackward} size={22} color="#2C344A" />
+      </Pressable>
+      <Text numberOfLines={1} style={styles.headerTitle}>
+        {product?.name || 'No Name'}
+      </Text>
+      <View style={{ width: 22 }} />
+    </View>
+  );
+}
+
+function InfoRow({ label, value }) {
+  return (
+    <View style={styles.infoRow}>
+      <Text style={styles.infoLabel}>{label}</Text>
+      <Text style={styles.infoValue}>{value}</Text>
+    </View>
+  );
+}
+
+function Reviews({ reviews }) {
+  return reviews.map((review) => (
+    <View key={review._id?.$oid || Math.random()} style={styles.reviewCard}>
+      <Text style={styles.reviewUser}>
+        {(review.User?.Name || 'Anonymous').toUpperCase()}
+      </Text>
+      <View style={styles.reviewRow}>
+        <FontAwesomeIcon icon={faQuoteLeft} size={18} color="#A79953" style={{ marginRight: 7 }} />
+        <Text style={styles.reviewText}>{review.Comments}</Text>
+      </View>
+    </View>
+  ));
+}
 
 export default function ProductsDetails() {
-    const route = useRoute();
-    const navigation = useNavigation();
-    const { product } = route.params || null;
+  const route = useRoute();
+  const navigation = useNavigation();
+  const { product } = route.params || {};
+  const [isFav, setIsFav] = useState(false);
 
-    useEffect(() => {
-        console.log(product);
-        if (!product) {
-            navigation.goBack();
-        }
-    }, [navigation, product]);
-
+  useEffect(() => {
     if (!product) {
-        return null;
+      Alert.alert('Error', 'Product not found.', [
+        { text: 'Go Back', onPress: () => navigation.goBack() },
+      ]);
     }
+  }, [navigation, product]);
 
-    const imageSrc = `data:${product.imageContentType};base64,${product.imageBytes.$binary.base64}`;
-    // console.log(imageSrc);
-    // console.log(product);
-    let reviews = product.Reviews;
-    console.log(reviews);
-    return (
-        <SafeAreaView style={{ flex: 1 }}>
-            {/* Header Image Background */}
-            <View style={{ height: '50%', width: '100%' }}>
-                <ImageBackground
-                    source={{ uri: imageSrc }}
-                    style={{
-                        width: '100%',
-                        height: 300,
-                    }}
-                    resizeMode="contain"
-                >
-                    {/* Header Overlay */}
-                    <View style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        backgroundColor: 'rgba(167, 154, 83, 0.79)',
-                        paddingHorizontal: 10,
-                    }}>
-                        <Pressable
-                            onPress={() => navigation.goBack()}
-                            style={{ padding: 10 }}
-                        >
-                            <FontAwesomeIcon
-                                icon={faBackward}
-                                size={20}
-                                color="black"
-                            />
-                        </Pressable>
-                        <Text style={{
-                            color: 'black',
-                            fontSize: 20,
-                            fontWeight: 'bold',
-                            flex: 1,
-                            textAlign: 'center',
-                        }}>
-                            {product.name}
-                        </Text>
-                        {/* Spacer to balance the back button */}
-                        <View style={{ width: 30 }} />
-                    </View>
-                </ImageBackground>
-                <View style={{
-                    flexDirection: 'row', justifyContent: 'space-between'
-                }}>
-                    <View style={{ flexDirection: 'row' }}>
-                        <Text style={{ fontSize: 19, color: '#05020cff', marginLeft: 10, paddingRight: 10 }}>
-                            Price
-                        </Text>
-                        <Text style={{ fontSize: 19, color: '#1c2550ff', marginLeft: 10, paddingRight: 10 }}>
-                            {product.price}
-                        </Text>
-                    </View>
-                    <View style={{ flexDirection: 'row' }}>
-                        <Text style={{ fontSize: 19, color: '#05020cff', marginLeft: 10, paddingRight: 10 }}>
-                            Quantity
-                        </Text>
-                        <Text style={{ fontSize: 19, color: '#1c2550ff', marginLeft: 10, paddingRight: 10 }}>
-                            {product.quantity}
-                        </Text>
-                    </View>
-                </View>
-                <View style={{
-                    flexDirection: 'row', width: '100%',
-                }}>
-                    <View style={{ width: '100%', paddingHorizontal: 12 }}>
-                        {/* Category Section */}
-                        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
-                            <Text style={{
-                                color: 'black',
-                                fontSize: 20,
-                                fontWeight: 'bold'
-                            }}>
-                                Category:
-                            </Text>
-                            <Text style={{
-                                marginLeft: 8,
-                                fontSize: 18,
-                                color: '#555'
-                            }}>
-                                {product.categories[0]?.name || 'Uncategorized'}
-                            </Text>
-                        </View>
+  if (!product) return null;
 
-                        {/* Description Section */}
-                        <Text style={{
-                            color: 'black',
-                            fontSize: 20,
-                            fontWeight: 'bold',
-                            marginTop: 16,
-                            marginBottom: 8
-                        }}>
-                            Description
-                        </Text>
+  const imageSrc = `data:${product.imageContentType};base64,${product.image?.$binary?.base64 || ''}`;
+  const category = product.Categories && product.Categories[0]?.name
+    ? product.Categories[0].name
+    : 'Uncategorized';
 
-                        <Text style={{
-                            color: 'rgba(0, 0, 0, 0.8)',
-                            fontSize: 16,
-                            lineHeight: 24,
-                            textAlign: 'left'
-                        }}>
-                            {product.description}
-                        </Text>
-                    </View>
-                </View>
-                <View style={{
-                    width: '100%',
-                    paddingHorizontal: 20,
-                    paddingBottom: 20,
-                    gap: 15,
-                    marginTop: 20
-                }}>
-                    {/* Primary Action Button */}
-                    <Pressable
-                        onPress={() => console.log('Add to cart pressed')}
-                        style={({ pressed }) => ({
-                            backgroundColor: pressed ? '#5a2f0aff' : '#f39c12',
-                            width: '100%',
-                            height: 50,
-                            borderRadius: 8,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            shadowColor: '#000',
-                            shadowOffset: { width: 0, height: 2 },
-                            shadowOpacity: 0.2,
-                            shadowRadius: 4,
-                            elevation: 10
-                        })}
-                    >
-                        <Text style={{
-                            color: 'white',
-                            fontSize: 18,
-                            fontWeight: '600'
-                        }}>
-                            Add To Cart
-                        </Text>
-                    </Pressable>
+  return (
+    <SafeAreaView style={styles.container}>
+      <ProductHeader
+        product={product}
+        onBack={() => navigation.goBack()}
+      />
 
-                    {/* Secondary Action Button */}
-                    <Pressable
-                        onPress={() => console.log('Buy now pressed')}
-                        style={({ pressed }) => ({
-                            backgroundColor: pressed ? '#0c6532ff' : '#2ecc71',
-                            width: '100%',
-                            height: 50,
-                            borderRadius: 8,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            shadowColor: '#000',
-                            shadowOffset: { width: 0, height: 2 },
-                            shadowOpacity: 0.2,
-                            shadowRadius: 4,
-                            elevation: 10
-                        })}
-                    >
-                        <Text style={{
-                            color: 'white',
-                            fontSize: 18,
-                            fontWeight: '600'
-                        }}>
-                            Buy Now
-                        </Text>
-                    </Pressable>
-                </View>
-                {/* Reviews */}
-                <Text style={{ fontSize: 25, color: 'black', marginLeft: 15 }}>Reviews</Text>
-                <View style={{ flexDirection: 'column', alignItems: 'center' }}>
-                    <View style={{ backgroundColor: 'black', width: '90%', height: '50%', alignItems: 'center' }}>
-                    </View>
-                </View>
-            </View>
-        </SafeAreaView>
-    );
+      <ScrollView>
+        <View style={styles.imageContainer}>
+          <Image
+            source={{ uri: imageSrc }}
+            style={styles.productImage}
+            resizeMode="contain"
+          />
+        </View>
+
+        <View style={styles.bodyContainer}>
+          <View style={styles.infoSection}>
+            <InfoRow label="Price" value={`${product.price?.toFixed(2) || "-"}`} />
+            {/* <InfoRow label="Quantity" value={product.quantity || "-"} /> */}
+            <InfoRow label="Category" value={category} />
+            <Pressable onPress={() => setIsFav(!isFav)} style={styles.favButton}>
+              <FontAwesomeIcon
+                icon={isFav ? solidHeart : regularHeart}
+                color={isFav ? 'red' : '#2C344A'}
+                size={22}
+              />
+            </Pressable>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoValue}> Availability</Text>
+            {
+              product.quantity > 0 ? <Text style={styles.infoLabel}> InStock</Text> :
+                <Text style={[styles.infoLabel, { fontSize: 15, color: 'red' }]}> Out of Stock</Text>
+            }
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoValue}>Huppy Up! <Text style={[styles.infoLabel, { fontSize: 15, color: 'rgba(62, 85, 44, 1)' }]}> {product.quantity} items are left </Text></Text>
+          </View>
+          <View style={styles.buttonGroup}>
+            <Pressable
+              style={({ pressed }) => [
+                styles.actionButton,
+                { backgroundColor: pressed ? '#c47c0f' : '#f8af36' }
+              ]}
+              onPress={() => console.log('Add To Cart')}
+            >
+              <Text style={styles.buttonText}>Add To Cart</Text>
+            </Pressable>
+            <Pressable
+              style={({ pressed }) => [
+                styles.actionButton,
+                { backgroundColor: pressed ? '#145a38' : '#2ecc71' }
+              ]}
+              onPress={() => console.log('Buy Now')}
+            >
+              <Text style={styles.buttonText}>Buy Now</Text>
+            </Pressable>
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Description</Text>
+            <Text style={styles.description}>
+              {product.description || 'No description provided.'}
+            </Text>
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Reviews</Text>
+            {
+              (!product.reviewsData || !Array.isArray(product.reviewsData) || product.reviewsData.length === 0) ?
+                <Text style={styles.noReviews}>No reviews yet.</Text> :
+                <Reviews reviews={product.reviewsData} />
+            }
+          </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
 }
+
+/* --- Styles --- */
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F7F7EE'
+  },
+  headerContainer: {
+    backgroundColor: '#F7F7EE',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  backButton: {
+    padding: 6
+  },
+  headerTitle: {
+    color: '#2C344A',
+    fontSize: 20,
+    fontWeight: 'bold',
+    flex: 1,
+    textAlign: 'center',
+  },
+  imageContainer: {
+    height: 300,
+    backgroundColor: '#FFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  productImage: {
+    width: '100%',
+    height: '100%',
+  },
+  bodyContainer: {
+    padding: 20,
+  },
+  infoSection: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 24,
+    flexWrap: 'wrap',
+  },
+  infoRow: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    minWidth: 100,
+    marginBottom: 10,
+  },
+  infoLabel: {
+    color: '#A79953',
+    fontSize: 14,
+    fontWeight: '500',
+    marginBottom: 2,
+  },
+  infoValue: {
+    color: '#222',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  favButton: {
+    padding: 8,
+    alignSelf: 'flex-start',
+  },
+  section: {
+    marginBottom: 22
+  },
+  sectionTitle: {
+    fontSize: 18,
+    color: '#1A1A1A',
+    fontWeight: '700',
+    marginBottom: 12,
+  },
+  description: {
+    color: '#474747',
+    fontSize: 16,
+    lineHeight: 22,
+    marginBottom: 4,
+  },
+  buttonGroup: {
+    flexDirection: 'row',
+    gap: 10,
+    marginVertical: 20,
+  },
+  actionButton: {
+    flex: 1,
+    height: 50,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 17,
+    fontWeight: '600',
+    letterSpacing: 0.2,
+  },
+  noReviews: {
+    color: '#AAA',
+    fontStyle: 'italic',
+    fontSize: 16,
+    marginTop: 8,
+  },
+  reviewCard: {
+    backgroundColor: '#FFF',
+    borderRadius: 10,
+    padding: 13,
+    marginBottom: 11,
+    shadowColor: '#A79953',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.09,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  reviewUser: {
+    fontWeight: 'bold',
+    fontSize: 15,
+    color: '#a78f3f',
+    marginBottom: 3,
+    letterSpacing: 1,
+  },
+  reviewRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+  },
+  reviewText: {
+    color: '#333',
+    fontSize: 15,
+    lineHeight: 20,
+    flex: 1,
+    flexWrap: 'wrap',
+  },
+});
