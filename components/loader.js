@@ -1,4 +1,7 @@
-import { View, Text } from 'react-native'
+/* eslint-disable eol-last */
+/* eslint-disable semi */
+/* eslint-disable react-native/no-inline-styles */
+import { View } from 'react-native'
 import React from 'react'
 import LottieView from 'lottie-react-native'
 const LoaderActivityIndicator = require('../Lotties/Loader.json');

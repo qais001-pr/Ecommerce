@@ -1,3 +1,4 @@
+/* eslint-disable quotes */
 import React, { useEffect, useState, createContext, useContext } from "react";
 import axios from "axios";
 import { ip } from "../config";
@@ -23,9 +24,8 @@ export const ProductsProvider = ({ children }) => {
                         throw new Error("Empty data received");
                     }
                 } catch (error) {
-                    console.warn(`Attempt ${attempt} failed: ${error.message}`);
                     if (attempt < retries) {
-                        await delay(delayMs); // Wait before retrying
+                        await delay(delayMs);
                     } else {
                         throw error; // Rethrow after last attempt
                     }
@@ -36,10 +36,8 @@ export const ProductsProvider = ({ children }) => {
         const fetchProducts = async () => {
             try {
                 const data = await fetchWithRetry(`${ip}/api/Product/GetAllProducts`, 3, 1500);
-                // console.log("Fetched products:", data);
                 setProducts(data);
             } catch (error) {
-                console.error("Failed to fetch products after 3 attempts:", error.message);
             } finally {
                 setLoadingProducts(false);
             }

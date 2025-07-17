@@ -1,3 +1,4 @@
+/* eslint-disable quotes */
 import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
     safeareaview: {
@@ -12,38 +13,44 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: 10,
-        backgroundColor: '#f8f8f8',
+        padding: 15,
+        backgroundColor: '#98c792ff',
         elevation: 10,
     },
     headerText: {
         fontSize: 26,
         marginLeft: 10,
         fontWeight: 'bold',
-        color: 'brown',
+        color: '#095e48ff',
     },
-    grid: {
+    gridContainer: {
+        marginTop: 6,
         flex: 1,
-        width: '100%',
-        height: '100%',
-        padding: 10,
         backgroundColor: '#fff',
-        flexWrap: 'wrap',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        gap: 10,
+    },
+    row: {
+        justifyContent: 'space-between', // Space between items in a row
+        marginBottom: 15, // Space between rows
+    },
+    itemWrapper: {
+        flex: 1,
+        marginHorizontal: 5,
+        // Optional: fixed height or aspect ratio for consistent card sizes
+        // height: 250,
     },
     modalView: {
         flex: 1,
+        backgroundColor: '#bbba',
+        justifyContent: 'flex-start',
+        alignItems: 'flex-start',
     },
     modalContent: {
         width: '90%',
         height: '90%',
-        backgroundColor: '#fff',
         borderRadius: 10,
         padding: 20,
         justifyContent: 'center',
         alignItems: 'center',
     },
+
 })

@@ -1,3 +1,8 @@
+/* eslint-disable comma-dangle */
+/* eslint-disable semi */
+/* eslint-disable no-unused-vars */
+/* eslint-disable jsx-quotes */
+/* eslint-disable react-native/no-inline-styles */
 import { View, Text, SafeAreaView, FlatList, Modal, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { styles } from '../styles/screens/home';
@@ -6,12 +11,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { useProducts } from '../context/productscontext';
 import ProductCard from '../components/productcard';
 import Slider from '../components/slider';
-import ip from '../config';
 export default function Home() {
     const [slidermodal, setslidermodal] = useState(false);
-    const {products, setProducts} = useProducts();
+    const { products, setProducts } = useProducts();
+
     useEffect(() => {
     }, [])
+
     return (
         <SafeAreaView style={styles.safeareaview}>
             {/* Header  */}
@@ -28,18 +34,23 @@ export default function Home() {
                 </View>
             </View>
             {/* Body  */}
-            <View style={styles.grid}>
+            <View style={styles.gridContainer}>
                 <FlatList
                     data={products}
+                    keyExtractor={(item) => item.id.toString()}
                     renderItem={({ item }) => (
-                        <View key={item.id.toString()}>
+                        <View style={styles.itemWrapper}>
                             <ProductCard item={item} />
                         </View>
                     )}
+                    numColumns={2} // Number of columns in the grid
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ paddingBottom: 50, paddingHorizontal: 10 }}
+                    columnWrapperStyle={styles.row} // Style for each row
                 />
             </View>
             {/* Slider  */}
-            <Modal visible={slidermodal} animationType='fade' transparent={true}>
+            <Modal visible={slidermodal} animationType='fade' transparent={true}  >
                 <View style={styles.modalView}>
                     <Slider setslidermodal={setslidermodal} />
                 </View>

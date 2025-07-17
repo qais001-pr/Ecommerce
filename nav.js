@@ -12,6 +12,8 @@ import Splash from './screens/splash';
 import Home from './screens/home';
 // {Tab Navigation Home}
 import TabNavigation from './screens/tabnavigationHome';
+//Product Details 
+import ProductsDetails from './screens/productdetails';
 export default function AppNavigator() {
     return (
         <NavigationContainer>
@@ -53,6 +55,14 @@ export default function AppNavigator() {
                 />
                 <Stack.Screen name="home" component={Home} options={{ headerShown: false }} />
                 <Stack.Screen name="tabBottomNav" component={TabNavigation} options={{ headerShown: false }} />
+                <Stack.Screen name="productDetails" component={ProductsDetails} options={{
+                    headerShown: false,
+                    headerTitle: 'Product Details',
+                    headerTransparent: true,
+                    animation: 'slide_from_right',
+                    headerBlurEffect: 'systemMaterialDark',
+                    headerTitleAlign: 'center',
+                }} />
             </Stack.Navigator>
         </NavigationContainer>
     )
