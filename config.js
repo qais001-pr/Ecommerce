@@ -1,1 +1,1 @@
-export const ip = 'https://baf3b6b082da.ngrok-free.app';
+export const ip = 'https://80b229b9262b.ngrok-free.app';

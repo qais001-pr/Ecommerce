@@ -1,3 +1,4 @@
+
 /* eslint-disable curly */
 
 
@@ -15,9 +16,12 @@ import axios from 'axios'
 import { ip } from '../config'
 import Loader from './loader'
 import Error from './error'
+import { useAuth } from '../context/authcontext'
 
 export default function ProductCard({ item }) {
+    const { user } = useAuth();
     const navigation = useNavigation();
+    const [showerror, setshowerror] = useState(false)
     const [isFavorite, setIsFavorite] = useState(false)
     const [isLoading, setisLoading] = useState(false)
     const scaleAnim = useRef(new Animated.Value(1)).current
@@ -40,10 +44,16 @@ export default function ProductCard({ item }) {
     }, [isFavorite, scaleAnim])
 
     const toggleFavorite = () => {
-        setIsFavorite(!isFavorite)
+        if (!user) {
+            setshowerror(true);
+            setTimeout(() => setshowerror(false), 2000);
+            return;
+        }
+        setIsFavorite(!isFavorite);
     }
+
     const handleProductDetails = async (productid) => {
-        < Error message={'Hello'} show={true} />
+
         try {
             setisLoading(true)
 
@@ -51,7 +61,6 @@ export default function ProductCard({ item }) {
             if (response.status === 200)
                 navigation.navigate('productDetails', { product: response.data })
         } catch {
-
             setisLoading(false)
         }
         finally {
@@ -106,6 +115,9 @@ export default function ProductCard({ item }) {
                         <Loader />
                     </View>
                 </View>
+            </Modal>
+            <Modal visible={showerror} transparent={true}>
+                <Error message="Please Login or SignUp" />
             </Modal>
         </Pressable>
     )

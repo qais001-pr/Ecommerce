@@ -6,12 +6,15 @@ import React from 'react'
 import AppNavigator from './nav'
 import { CategoriesProvider } from './context/categoriescontext'
 import { ProductsProvider } from './context/productscontext'
+import { AuthProvider } from './context/authcontext'
 export default function App() {
   return (
     <>
       <CategoriesProvider>
         <ProductsProvider>
-          <AppNavigator />
+          <AuthProvider>
+            <AppNavigator />
+          </AuthProvider>
         </ProductsProvider>
       </CategoriesProvider>
     </>

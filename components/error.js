@@ -1,26 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Text, Animated, StyleSheet } from 'react-native';
+/* eslint-disable curly */
+import React from 'react';
+import { Text, View, StyleSheet } from 'react-native';
 
-export default function Error({ message, show }) {
-    const fadeAnim = useRef(new Animated.Value(1)).current;
-    const [visible, setVisible] = useState(show);
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            Animated.timing(fadeAnim, {
-                toValue: 0,
-                duration: 500,
-                useNativeDriver: true,
-            }).start(() => setVisible(false));
-        }, 3000);
-
-        return () => clearTimeout(timer);
-    }, [fadeAnim]);
+export default function Error({ message }) {
+    if (!message) return null; // Do not render if no message
 
     return (
-        <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
-            <Text style={styles.text}>{message || 'Something went wrong!'}</Text>
-        </Animated.View>
+        <View style={styles.container}>
+            <Text style={styles.text}>{message}</Text>
+        </View>
     );
 }
 

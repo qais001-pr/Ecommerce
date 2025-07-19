@@ -1,3 +1,4 @@
+
 /* eslint-disable semi */
 /* eslint-disable quotes */
 /* eslint-disable curly */
@@ -13,14 +14,18 @@ import {
   ScrollView,
   StyleSheet,
   Alert,
+  Modal,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faBackward, faQuoteLeft } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as solidHeart } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as regularHeart } from '@fortawesome/free-regular-svg-icons';
+import { useAuth } from '../context/authcontext';
+import Error from '../components/error';
 
 function ProductHeader({ product, onBack }) {
+
   return (
     <View style={styles.headerContainer}>
       <Pressable onPress={onBack} style={styles.backButton}>
@@ -62,6 +67,8 @@ export default function ProductsDetails() {
   const navigation = useNavigation();
   const { product } = route.params || {};
   const [isFav, setIsFav] = useState(false);
+  const { user } = useAuth()
+  const [showerror, setshowerror] = useState(false)
 
   useEffect(() => {
     if (!product) {
@@ -78,6 +85,15 @@ export default function ProductsDetails() {
     ? product.Categories[0].name
     : 'Uncategorized';
 
+
+  const toggleFavourite = () => {
+    if (!user) {
+      setshowerror(true)
+      setTimeout(() => { setshowerror(false) }, 2000)
+      return;
+    }
+    setIsFav(true)
+  }
   return (
     <SafeAreaView style={styles.container}>
       <ProductHeader
@@ -99,7 +115,7 @@ export default function ProductsDetails() {
             <InfoRow label="Price" value={`${product.price?.toFixed(2) || "-"}`} />
             {/* <InfoRow label="Quantity" value={product.quantity || "-"} /> */}
             <InfoRow label="Category" value={category} />
-            <Pressable onPress={() => setIsFav(!isFav)} style={styles.favButton}>
+            <Pressable onPress={toggleFavourite} style={styles.favButton}>
               <FontAwesomeIcon
                 icon={isFav ? solidHeart : regularHeart}
                 color={isFav ? 'red' : '#2C344A'}
@@ -154,6 +170,9 @@ export default function ProductsDetails() {
             }
           </View>
         </View>
+        <Modal visible={showerror} transparent={true}>
+          <Error message="Please Login or SignUp" />
+        </Modal>
       </ScrollView>
     </SafeAreaView>
   );

@@ -1,3 +1,4 @@
+/* eslint-disable no-trailing-spaces */
 /* eslint-disable jsx-quotes */
 /* eslint-disable no-unused-vars */
 /* eslint-disable semi */
@@ -14,6 +15,10 @@ import Home from './screens/home';
 import TabNavigation from './screens/tabnavigationHome';
 //Product Details 
 import ProductsDetails from './screens/productdetails';
+//Login Screen
+import Login from './screens/login';
+//SignUp
+import Signup from './screens/signup';
 export default function AppNavigator() {
     return (
         <NavigationContainer>
@@ -56,6 +61,23 @@ export default function AppNavigator() {
                 <Stack.Screen name="home" component={Home} options={{ headerShown: false }} />
                 <Stack.Screen name="tabBottomNav" component={TabNavigation} options={{ headerShown: false }} />
                 <Stack.Screen name="productDetails" component={ProductsDetails} options={{
+                    headerShown: false,
+                    headerTitle: 'Product Details',
+                    headerTransparent: true,
+                    animation: 'slide_from_right',
+                    headerBlurEffect: 'systemMaterialDark',
+                    headerTitleAlign: 'center',
+                }} />
+
+                <Stack.Screen name="login" component={Login} options={{
+                    headerShown: false,
+                    headerTitle: 'Product Details',
+                    headerTransparent: true,
+                    animation: 'slide_from_right',
+                    headerBlurEffect: 'systemMaterialDark',
+                    headerTitleAlign: 'center',
+                }} />
+                <Stack.Screen name="signup" component={Signup} options={{
                     headerShown: false,
                     headerTitle: 'Product Details',
                     headerTransparent: true,
