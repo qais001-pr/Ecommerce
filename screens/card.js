@@ -2,7 +2,6 @@
 /* eslint-disable no-catch-shadow */
 /* eslint-disable eol-last */
 /* eslint-disable jsx-quotes */
-/* eslint-disable no-trailing-spaces */
 /* eslint-disable comma-dangle */
 /* eslint-disable no-unused-vars */
 /* eslint-disable quotes */
@@ -27,7 +26,7 @@ export default function CartScreen({ navigation }) {
     const [quantities, setQuantities] = useState({});
     const [selectedItems, setSelectedItems] = useState({});
     const [error, seterror] = useState(false);
-    const [info, setinfo] = useState('')
+    const [info, setinfo] = useState('');
 
     const fetchProducts = useCallback(async () => {
         if (!user?._id) return;
