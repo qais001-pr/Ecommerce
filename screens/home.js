@@ -1,7 +1,7 @@
 /* eslint-disable jsx-quotes */
 /* eslint-disable comma-dangle */
-/* eslint-disable no-unused-vars */
 /* eslint-disable react-native/no-inline-styles */
+
 import {
     View,
     Text,
@@ -12,10 +12,12 @@ import {
     RefreshControl,
     StyleSheet,
     Dimensions,
-    Platform
+    Platform,
+    TextInput,
+    Keyboard
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { faBars, faSearch, faEllipsisV } from '@fortawesome/free-solid-svg-icons';
+import React, { useRef, useState } from 'react';
+import { faBars, faSearch, faClose } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { useProducts } from '../context/productscontext';
 import ProductCard from '../components/productcard';
@@ -25,6 +27,7 @@ import { ip } from '../config';
 import axios from 'axios';
 import LottieView from 'lottie-react-native';
 import { useCategories } from '../context/categoriescontext';
+
 const emptyGhost = require('../Lotties/empty ghost.json');
 const { width } = Dimensions.get('window');
 
@@ -34,13 +37,19 @@ export default function Home() {
     const [refreshing, setRefreshing] = useState(false);
     const { products, setProducts, fetchProducts } = useProducts();
     const [isLoading, setisLoading] = useState(false);
+    const [btnref, setbtnref] = useState(false);
+    const [search, setsearch] = useState(false);
+    const [query, setquery] = useState('');
+    const refquery = useRef(null);
 
     const onRefresh = async () => {
         setRefreshing(true);
         await fetchProducts();
         await fetchCategories();
         setRefreshing(false);
+        setbtnref(false);
     };
+
     const fetProductByCategory = async (id) => {
         try {
             setisLoading(true);
@@ -48,9 +57,32 @@ export default function Home() {
             console.log(res.data.result);
             setProducts(res.data.result);
         } catch (error) {
+            console.error('Error fetching products by category:', error);
         } finally {
             setisLoading(false);
         }
+    };
+
+    const searchProduct = async () => {
+        try {
+            if (!query) {
+                Keyboard.dismiss();
+                setsearch(false);
+                return;
+            }
+            Keyboard.dismiss();
+            setsearch(false);
+            setquery('');
+            const response = await axios.get(`${ip}/api/Product/getsearchproducts/${query}`);
+            setProducts(response.data.data);
+        } catch (error) {
+        }
+    };
+
+    const handleCloseSearch = () => {
+        setsearch(false);
+        setquery('');
+        fetchProducts(); // Reset to original products
     };
 
     return (
@@ -71,22 +103,53 @@ export default function Home() {
                     <Text style={styles.headerTitle}>My Shop</Text>
                 </View>
                 <View style={styles.headerRight}>
-                    <TouchableOpacity style={styles.iconButton}>
+                    <TouchableOpacity
+                        style={styles.iconButton}
+                        onPress={() => {
+                            setsearch(true);
+                            refquery.current?.focus();
+                        }}
+                    >
                         <FontAwesomeIcon
                             icon={faSearch}
                             size={20}
                             color="#2C344A"
                         />
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.iconButton}>
-                        <FontAwesomeIcon
-                            icon={faEllipsisV}
-                            size={20}
-                            color="#2C344A"
-                        />
-                    </TouchableOpacity>
                 </View>
             </View>
+
+            {/* Search Modal */}
+            {search && (
+                <View style={[styles.header, { paddingVertical: 7 }]}>
+                    <View style={styles.headerLeft}>
+                        <FontAwesomeIcon icon={faSearch} size={15} color="#2C344A" />
+                        <TextInput
+                            value={query}
+                            style={styles.searchInput}
+                            onChangeText={setquery}
+                            ref={refquery}
+                            placeholderTextColor={'#666'}
+                            placeholder='Type name here'
+                            maxLength={30}
+                            onSubmitEditing={searchProduct}
+                            autoFocus={true}
+                        />
+                    </View>
+                    <View style={styles.headerRight}>
+                        <TouchableOpacity
+                            onPress={handleCloseSearch}
+                            style={styles.iconButton}
+                        >
+                            <FontAwesomeIcon
+                                icon={faClose}
+                                size={22}
+                                color="#2C344A"
+                            />
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            )}
 
             {/* Product Grid */}
             <FlatList
@@ -100,7 +163,10 @@ export default function Home() {
                 numColumns={2}
                 columnWrapperStyle={styles.row}
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.listContent}
+                contentContainerStyle={[
+                    styles.listContent,
+                    products.length === 0 && { flexGrow: 1 }
+                ]}
                 refreshControl={
                     <RefreshControl
                         refreshing={refreshing}
@@ -110,80 +176,39 @@ export default function Home() {
                     />
                 }
                 ListHeaderComponent={
-                    <Text style={styles.sectionTitle}>Featured Products</Text>
+                    products.length > 0 && (
+                        <Text style={styles.sectionTitle}>Featured Products</Text>
+                    )
                 }
                 ListFooterComponent={<View style={{ height: 30 }} />}
                 ListEmptyComponent={
-                    <View style={{
-                        flex: 1,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        height: Dimensions.get('window').height * 0.7, // Take 70% of screen height
-                        paddingHorizontal: 20,
-                    }}>
-                        {/* Lottie Animation Container */}
-                        <View style={{
-                            width: '100%',
-                            height: 200,
-                            marginBottom: 20,
-                            overflow: 'hidden',
-                            alignItems: 'center',
-                        }}>
+                    <View style={styles.emptyContainer}>
+                        <View style={styles.animationContainer}>
                             <LottieView
                                 source={emptyGhost}
                                 autoPlay
                                 loop
-                                resizeMode='cover'
-                                style={{
-                                    width: 300, // Fixed width works better than percentages for Lottie
-                                    height: 300,
-                                    marginTop: -50 // Adjust if needed to center the ghost
-                                }}
+                                style={styles.animation}
                             />
                         </View>
 
-                        {/* Text Content */}
-                        <Text style={{
-                            fontSize: 22,
-                            fontWeight: 'bold',
-                            color: '#333',
-                            marginBottom: 8,
-                            textAlign: 'center'
-                        }}>
+                        <Text style={styles.emptyTitle}>
                             Boo! Empty Here
                         </Text>
 
-                        <Text style={{
-                            fontSize: 16,
-                            color: '#666',
-                            textAlign: 'center',
-                            lineHeight: 24,
-                            maxWidth: '80%',
-                            marginBottom: 24
-                        }}>
+                        <Text style={styles.emptyText}>
                             Looks like the ghosts scared all the products away! Try another category or check back later.
                         </Text>
 
-                        {/* Action Button */}
                         <TouchableOpacity
-                            style={{
-                                backgroundColor: '#6C63FF',
-                                paddingHorizontal: 32,
-                                paddingVertical: 12,
-                                borderRadius: 30,
-                                shadowColor: '#6C63FF',
-                                shadowOffset: { width: 0, height: 4 },
-                                shadowOpacity: 0.3,
-                                shadowRadius: 8,
-                                elevation: 5
+                            style={styles.refreshButton}
+                            onPress={() => {
+                                setbtnref(true);
+                                onRefresh();
                             }}
-                            onPress={onRefresh}
+                            disabled={btnref}
                         >
-                            <Text style={{
-                                color: 'white',
-                                fontWeight: '600',
-                                fontSize: 16
-                            }}>
+                            <Text style={styles.refreshButtonText}>
                                 Refresh Products
                             </Text>
                         </TouchableOpacity>
@@ -199,31 +224,24 @@ export default function Home() {
                 onRequestClose={() => setslidermodal(false)}
             >
                 <View style={styles.modalOverlay}>
-                    <Slider setslidermodal={setslidermodal} fetchProducts={fetProductByCategory} />
-                </View>
-            </Modal>
-            <Modal
-                visible={isLoading}
-                transparent={true}
-                animationType="slide"
-                onRequestClose={() => { }}
-                style={{
-                    flex: 1,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    backgroundColor: 'rgba(0,0,0,0.5)'
-                }}
-            >
-                <View style={{
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    alignContent: 'center',
-                    top: '55%'
-                }}>
-                    <Loader />
+                    <Slider
+                        setslidermodal={setslidermodal}
+                        fetchProducts={fetProductByCategory}
+                    />
                 </View>
             </Modal>
 
+            {/* Loading Modal */}
+            <Modal
+                visible={isLoading}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => { }}
+            >
+                <View style={styles.loaderContainer}>
+                    <Loader />
+                </View>
+            </Modal>
         </SafeAreaView>
     );
 }
@@ -261,7 +279,7 @@ const styles = StyleSheet.create({
     headerRight: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 16,
+        gap: 1,
     },
     headerTitle: {
         fontSize: 20,
@@ -271,6 +289,12 @@ const styles = StyleSheet.create({
     },
     iconButton: {
         padding: 8,
+    },
+    searchInput: {
+        paddingLeft: 20,
+        fontSize: 16,
+        color: 'black',
+        width: '80%',
     },
     listContent: {
         paddingHorizontal: 12,
@@ -296,4 +320,60 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.5)',
     },
+    emptyContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: Dimensions.get('window').height * 0.7,
+        paddingHorizontal: 20,
+    },
+    animationContainer: {
+        width: '100%',
+        height: 200,
+        marginBottom: 20,
+        overflow: 'hidden',
+        alignItems: 'center',
+    },
+    animation: {
+        width: 300,
+        height: 300,
+        marginTop: -50
+    },
+    emptyTitle: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: 8,
+        textAlign: 'center'
+    },
+    emptyText: {
+        fontSize: 16,
+        color: '#666',
+        textAlign: 'center',
+        lineHeight: 24,
+        maxWidth: '80%',
+        marginBottom: 24
+    },
+    refreshButton: {
+        backgroundColor: '#9e9258e3',
+        paddingHorizontal: 32,
+        paddingVertical: 12,
+        borderRadius: 30,
+        shadowColor: '#24200fe3',
+        shadowOffset: { width: 5, height: 4 },
+        shadowOpacity: 1,
+        shadowRadius: 80,
+        elevation: 10
+    },
+    refreshButtonText: {
+        color: 'white',
+        fontWeight: '600',
+        fontSize: 16,
+    },
+    loaderContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)'
+    }
 });

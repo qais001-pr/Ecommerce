@@ -1,5 +1,5 @@
 /* eslint-disable eol-last */
-/* eslint-disable comma-dangle */
+
 /* eslint-disable curly */
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, Alert, ActivityIndicator } from 'react-native';
 import React, { useState } from 'react';
@@ -7,11 +7,12 @@ import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/authcontext';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faEnvelope, faLock, faSignInAlt, faUserPlus } from '@fortawesome/free-solid-svg-icons';
-
+import { ip } from '../config';
+import axios from 'axios';
 export default function Login() {
     const { loginUser } = useAuth();
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [email, setEmail] = useState('saif3238@gmail.com');
+    const [password, setPassword] = useState('1234567890123');
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
     const navigation = useNavigation();
@@ -32,13 +33,11 @@ export default function Login() {
 
         setLoading(true);
         try {
-            // Replace with your actual authentication logic
-            await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network request
-            loginUser({
-                name: 'Demo User',
-                email: email,
-                avatar: 'https://randomuser.me/api/portraits/men/1.jpg'
-            });
+            const response = await axios.post(`${ip}/api/User/login`, { email: email, password: password });
+            if (response.data.status === 200) {
+                loginUser(response.data.data);
+                navigation.navigate('tabBottomNav');
+            }
         } catch (error) {
             Alert.alert(
                 'Login Failed',

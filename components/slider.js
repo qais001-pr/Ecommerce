@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 /* eslint-disable comma-dangle */
 import React, { useState } from 'react';
 import {
@@ -14,8 +15,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faTimes, faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import { useCategories } from '../context/categoriescontext';
 import { styles } from '../styles/components/slider';
+import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '../context/authcontext';
 export default function Slider({ setslidermodal, fetchProducts }) {
     const { categories } = useCategories();
+    const { logout } = useAuth();
+    const navigation = useNavigation();
     const [isCategoriesExpanded, setIsCategoriesExpanded] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [animation] = useState(new Animated.Value(0));
@@ -96,17 +101,41 @@ export default function Slider({ setslidermodal, fetchProducts }) {
             </Animated.View>
 
             {/* Additional menu items */}
-            <TouchableOpacity style={styles.menuItem}>
+            <TouchableOpacity style={styles.menuItem} onPress={() => {
+                navigation.navigate('Profile');
+                setslidermodal(false);
+            }}>
                 <Text style={styles.menuText}>My Account</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem}>
+            <TouchableOpacity style={styles.menuItem} onPress={() => {
+                navigation.navigate('Orders');
+                setslidermodal(false);
+            }}>
                 <Text style={styles.menuText}>Orders</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem}>
+            <TouchableOpacity style={styles.menuItem} onPress={() => {
+                navigation.navigate('Wishlist');
+                setslidermodal(false);
+            }}>
                 <Text style={styles.menuText}>Wishlist</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem}>
-                <Text style={styles.menuText}>Settings</Text>
+            <TouchableOpacity style={styles.menuItem} onPress={() => {
+                navigation.navigate('Wishlist');
+                setslidermodal(false);
+            }}>
+                <Text style={styles.menuText}>Cart</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={{
+                width: '99.8%',
+                position: 'absolute',
+                bottom: 10,
+                padding: 20,
+            }} onPress={async () => {
+                await logout();
+                navigation.navigate('tabBottomNav');
+                setslidermodal(false);
+            }}>
+                <Text style={styles.menuText}>Logout</Text>
             </TouchableOpacity>
         </SafeAreaView>
     );

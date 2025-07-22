@@ -1,6 +1,5 @@
-/* eslint-disable no-unused-vars */
+/* eslint-disable quotes */
 /* eslint-disable react-native/no-inline-styles */
-/* eslint-disable comma-dangle */
 /* eslint-disable curly */
 import React, { useState } from 'react';
 import {
@@ -20,7 +19,9 @@ import ImagePicker from 'react-native-image-crop-picker';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import RNFS from 'react-native-fs';
-
+import { useAuth } from '../context/authcontext';
+import { useNavigation } from '@react-navigation/native';
+import { ip } from '../config';
 import {
     faUserPlus,
     faCamera,
@@ -32,18 +33,19 @@ import {
     faLock,
     faHome,
     faSignInAlt,
-    faVolumeHigh,
-    faMinimize
+
 } from '@fortawesome/free-solid-svg-icons';
 
-const Signup = ({ navigation }) => {
+const Signup = () => {
+    const navigation = useNavigation();
+    const { loginUser } = useAuth();
     const [formData, setFormData] = useState({
-        name: '',
-        contactno: '',
+        name: 'Muhammad Saif',
+        contactno: '03025234874',
         gender: 'male',
-        email: '',
-        password: '',
-        localaddress: '',
+        email: 'saif3238@gmail.com',
+        password: '1234567890123',
+        localaddress: 'Bewal Road Kallar Syedan, GujarKhan',
         image: null,
     });
 
@@ -93,16 +95,18 @@ const Signup = ({ navigation }) => {
             }
 
             const result = await convertImageToBinary(image.path);
-            const { imageExtension, mimeType, base64String } = result;
-            console.log(imageExtension, mimeType, base64String);
+            if (!result || !result.mimeType || !result.base64String) {
+                console.error("Invalid result from convertImageToBinary:", result);
+                return;
+            }
+            const { mimeType, base64String } = result;
             const dataUrl = `data:${mimeType};base64,${base64String}`;
-            console.log(dataUrl);
+            setFormData({ ...formData, image: dataUrl });
             const fileExtension = image.path.split('.').pop().toLowerCase();
             if (!['jpg', 'jpeg', 'png'].includes(fileExtension)) {
                 Alert.alert('Error', 'Only JPG/JPEG/PNG images are allowed');
                 return;
             }
-            setFormData({ ...formData, image });
         } catch (error) {
             if (error.message !== 'User cancelled image selection') {
                 Alert.alert('Error', 'Failed to select image. Please try again.');
@@ -121,7 +125,6 @@ const Signup = ({ navigation }) => {
             // Extract file extension
             const imageExtension = imagePath.split('.').pop().toLowerCase();
 
-            // Determine mime type based on file extension (could add more extensions if needed)
             let mimeType = '';
             switch (imageExtension) {
                 case 'jpg':
@@ -132,11 +135,7 @@ const Signup = ({ navigation }) => {
                     mimeType = 'image/png';
                     break;
             }
-            // For debug purposes
-            // console.log('Image Extension:', fileExtension);
-            // console.log('image Content', mimeType);
             return {
-                imageExtension,
                 mimeType,
                 base64String,
             };
@@ -175,37 +174,20 @@ const Signup = ({ navigation }) => {
 
         setLoading(true);
         try {
-            const formDataToSend = new FormData();
-
-            formDataToSend.append('name', formData.name);
-            formDataToSend.append('contactno', formData.contactno);
-            formDataToSend.append('gender', formData.gender);
-            formDataToSend.append('email', formData.email);
-            formDataToSend.append('password', formData.password);
-            formDataToSend.append('localaddress', formData.localaddress);
-
-            if (formData.image) {
-                formDataToSend.append('image', {
-                    uri: formData.image.path,
-                    type: formData.image.mime,
-                    name: `profile_${Date.now()}.${formData.image.path.split('.').pop()}`
-                });
-            }
-
-            const response = await axios.post('https://your-api.com/signup', formDataToSend, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
+            const response = await axios.post(`${ip}/api/User/CreateUser`, {
+                name: formData.name,
+                contactno: formData.contactno,
+                gender: formData.gender,
+                email: formData.email,
+                password: formData.password,
+                localaddress: formData.localaddress,
+                image: formData.image
             });
-
-            if (response.data.success) {
-                Alert.alert('Success', 'Account created successfully!');
-                navigation.navigate('Login');
-            } else {
-                throw new Error(response.data.message || 'Registration failed');
+            if (response.data.status === 200) {
+                loginUser(formData);
+                navigation.navigate('tabBottomNav');
             }
         } catch (error) {
-            console.error('Signup error:', error);
             Alert.alert('Error', error.response?.data?.message || error.message || 'Failed to create account. Please try again.');
         } finally {
             setLoading(false);
@@ -228,7 +210,7 @@ const Signup = ({ navigation }) => {
                             onPress={handleImageUpload}
                         >
                             {formData.image ? (
-                                <Image source={{ uri: formData.image.path }} style={styles.profileImage} />
+                                <Image source={{ uri: formData.image }} style={styles.profileImage} />
                             ) : (
                                 <View style={styles.profilePlaceholder}>
                                     <FontAwesomeIcon icon={faCamera} size={30} color="#555" />

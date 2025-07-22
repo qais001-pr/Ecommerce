@@ -16,14 +16,15 @@ import axios from 'axios'
 import { ip } from '../config'
 import Loader from './loader'
 import Error from './error'
-import { useAuth } from '../context/authcontext'
+import { useAuth } from '../context/authcontext';
 
 export default function ProductCard({ item }) {
     const { user } = useAuth();
     const navigation = useNavigation();
-    const [showerror, setshowerror] = useState(false)
-    const [isFavorite, setIsFavorite] = useState(false)
-    const [isLoading, setisLoading] = useState(false)
+    const [info, setinfo] = useState('');
+    const [showerror, setshowerror] = useState(false);
+    const [isFavorite, setIsFavorite] = useState(false);
+    const [isLoading, setisLoading] = useState(false);
     const scaleAnim = useRef(new Animated.Value(1)).current
 
     const image = `data:${item.imageContentType};base64,${item.imageBytes}`
@@ -43,20 +44,56 @@ export default function ProductCard({ item }) {
         ]).start()
     }, [isFavorite, scaleAnim])
 
-    const toggleFavorite = () => {
+    const toggleFavorite = async () => {
         if (!user) {
             setshowerror(true);
+            setinfo('Please Login or Signup');
             setTimeout(() => setshowerror(false), 2000);
             return;
         }
-        setIsFavorite(!isFavorite);
-    }
+
+        const showTemporaryMessage = (message) => {
+            setshowerror(true);
+            setinfo(message);
+            setTimeout(() => setshowerror(false), 2000);
+        };
+
+        try {
+            if (!isFavorite) {
+                // Add favorite
+                const response = await axios.post(`${ip}/api/Wishlists/InsertWhishlists`, {
+                    productid: item.id,
+                    userid: user._id,
+                });
+
+                if (response.status === 201 || response.data.status === 201) {
+                    setIsFavorite(true);
+                    showTemporaryMessage('Liked');
+                } else {
+                    showTemporaryMessage('Failed to add');
+                }
+
+            } else {
+                // Remove favorite
+                const response = await axios.delete(`${ip}/api/Wishlists/Delete/${item.id}`);
+
+                if (response.status === 200) {
+                    setIsFavorite(false);
+                    showTemporaryMessage('Disliked');
+                } else {
+                    showTemporaryMessage('Failed to remove');
+                }
+            }
+        } catch (error) {
+            showTemporaryMessage('An error occurred');
+        }
+    };
+
 
     const handleProductDetails = async (productid) => {
 
         try {
-            setisLoading(true)
-
+            setisLoading(true);
             const response = await axios.get(`${ip}/api/Product/getproductDetails/${productid}`)
             if (response.status === 200)
                 navigation.navigate('productDetails', { product: response.data })
@@ -117,7 +154,7 @@ export default function ProductCard({ item }) {
                 </View>
             </Modal>
             <Modal visible={showerror} transparent={true}>
-                <Error message="Please Login or SignUp" />
+                <Error message={info} />
             </Modal>
         </Pressable>
     )

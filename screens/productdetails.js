@@ -23,6 +23,9 @@ import { faHeart as solidHeart } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as regularHeart } from '@fortawesome/free-regular-svg-icons';
 import { useAuth } from '../context/authcontext';
 import Error from '../components/error';
+import axios from 'axios';
+import { ip } from '../config';
+import Loader from '../components/loader';
 
 function ProductHeader({ product, onBack }) {
 
@@ -68,8 +71,9 @@ export default function ProductsDetails() {
   const { product } = route.params || {};
   const [isFav, setIsFav] = useState(false);
   const { user } = useAuth()
-  const [showerror, setshowerror] = useState(false)
-
+  const [showerror, setshowerror] = useState(false);
+  const [info, setinfo] = useState('')
+  const [isLoading, setisLoading] = useState(false)
   useEffect(() => {
     if (!product) {
       Alert.alert('Error', 'Product not found.', [
@@ -92,7 +96,24 @@ export default function ProductsDetails() {
       setTimeout(() => { setshowerror(false) }, 2000)
       return;
     }
-    setIsFav(true)
+    setIsFav(!isFav)
+  }
+  const TemporaryText = (message) => {
+    setshowerror(true)
+    setinfo(message)
+    setTimeout(() => { setshowerror(false) }, 1500)
+  }
+  const handleAddToCart = async () => {
+    try {
+      setisLoading(true)
+      const response = await axios.post(`${ip}/api/AddToCart/CreateAddtocart`, { productid: product._id.$oid, userid: user._id })
+      if (response.data.status === 200)
+        TemporaryText('Add To Cart Successfully')
+    } catch (error) {
+      TemporaryText('An error Occured')
+    } finally {
+      setisLoading(false);
+    }
   }
   return (
     <SafeAreaView style={styles.container}>
@@ -139,7 +160,7 @@ export default function ProductsDetails() {
                 styles.actionButton,
                 { backgroundColor: pressed ? '#c47c0f' : '#f8af36' }
               ]}
-              onPress={() => console.log('Add To Cart')}
+              onPress={handleAddToCart}
             >
               <Text style={styles.buttonText}>Add To Cart</Text>
             </Pressable>
@@ -164,14 +185,19 @@ export default function ProductsDetails() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Reviews</Text>
             {
-              (!product.reviewsData || !Array.isArray(product.reviewsData) || product.reviewsData.length === 0) ?
+              (!product.reviewsData || !Array.isArray(product.reviewsData) || product.reviewsData.length === 1) ?
                 <Text style={styles.noReviews}>No reviews yet.</Text> :
                 <Reviews reviews={product.reviewsData} />
             }
           </View>
         </View>
         <Modal visible={showerror} transparent={true}>
-          <Error message="Please Login or SignUp" />
+          <Error message={info} />
+        </Modal>
+        <Modal visible={isLoading} transparent={true}>
+          <View>
+            <Loader />
+          </View>
         </Modal>
       </ScrollView>
     </SafeAreaView>

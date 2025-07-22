@@ -1,4 +1,4 @@
-/* eslint-disable eol-last */
+
 /* eslint-disable no-unused-vars */
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import React from 'react';
@@ -11,14 +11,17 @@ export default function ProfileScreen() {
 
     return (
         <View style={styles.container}>
-            {isAuthenticated ? (
+            {isAuthenticated && user ? (
                 <View style={styles.profileContainer}>
                     <Image
-                        source={{ uri: user.avatar }}
+                        source={{ uri: user.imageBytes }}
                         style={styles.avatar}
                     />
                     <Text style={styles.name}>{user.name}</Text>
                     <Text style={styles.email}>{user.email}</Text>
+                    <Text style={styles.name}>{user.gender.toUpperCase()}</Text>
+                    <Text style={styles.email}>{user.contactno}</Text>
+                    <Text style={styles.email}>{user.localAddress}</Text>
 
                     <TouchableOpacity
                         style={styles.logoutButton}
@@ -81,12 +84,12 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
     avatar: {
-        width: 120,
-        height: 120,
-        borderRadius: 60,
+        width: 150,
+        height: 150,
+        borderRadius: 50,
         marginBottom: 20,
-        borderWidth: 3,
-        borderColor: '#4a90e2',
+        borderWidth: 4,
+        borderColor: '#757419ff',
     },
     name: {
         fontSize: 24,
@@ -97,7 +100,7 @@ const styles = StyleSheet.create({
     email: {
         fontSize: 16,
         color: '#666',
-        marginBottom: 30,
+        marginBottom: 20,
     },
     title: {
         fontSize: 22,

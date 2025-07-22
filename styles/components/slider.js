@@ -33,13 +33,14 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+        margin: 1,
+        width: '99%',
     },
     menuText: {
         fontSize: 19,
         color: '#444',
     },
     categoryList: {
-        backgroundColor: '#f9f9f9',
         maxHeight: 300,
     },
     categoryItem: {
