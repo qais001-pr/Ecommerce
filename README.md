@@ -15,8 +15,6 @@ This repository contains the source code for a cross-platform **E-Commerce Mobil
 - **Frontend**: React Native
 - **State Management**: Context API
 - **Navigation**: React Navigation
-- **Backend**: [Specify Backend if applicable]
-- **Database**: [Specify Database if applicable]
 
 ## Installation
 
